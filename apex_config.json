@@ -3,7 +3,7 @@
   "connections": [
     {
       "type": "Child",
-      "port": 5000,
+      "port": 5100,
       "format": "XML",
       "icd_version": "VERSION6"
     },
@@ -57,7 +57,7 @@
     "host": "localhost",
     "port": 9200,
     "useSsl": true,
-    "certLocation": "C:\\elasticsearch-8.11.1\\config\\certs\\http_ca.crt",
+    "certLocation": "tests/credentials/es-ca.crt",
     "user": "elastic",
     "password": "password"
   },
