@@ -46,6 +46,8 @@ Apex is a Python middleware (v4.x) implementing the SAPIENT standard (BSI Flex 3
 
 ### Setup
 ```bash
+# Apex requires Python <3.12. Use pyenv to select 3.11:
+#   pyenv install 3.11.11   (if not already installed)
 python -m venv venv && source venv/bin/activate
 poetry install --all-extras   # installs all deps including PySide6 GUI
 pre-commit install             # enforces black, flake8, proto regeneration on commit
