@@ -166,29 +166,24 @@ class ApexServer:
 
         error_messages = []
 
-        def exception_handler(e):
-            """To cope with members of trio exceptions, we use this with MultiError.catch()."""
-            if isinstance(e, trio.Cancelled):
-                msg = "Apex shutting down"
-                if msg not in error_messages:
-                    error_messages.append(msg)
-            elif isinstance(e, EOFError):
-                error_messages.append("Connection closed")
-            elif isinstance(e, ApexError):
-                error_messages.append(str(e))
-            else:
-                error_messages.append(f"{type(e).__name__}: {e}")
-            if isinstance(e, Exception):
-                return None  # We catch and swallow most exceptions
-            else:
-                return e  # But not if a BaseException, most likely trio.Cancelled
-
         try:
-            with trio.MultiError.catch(exception_handler):
-                async with trio.open_nursery() as nursery:
-                    nursery.start_soon(buffered_writer.perform_writes)
-                    nursery.start_soon(read_to_channel)
-                    nursery.start_soon(read_from_channel)
+            async with trio.open_nursery() as nursery:
+                nursery.start_soon(buffered_writer.perform_writes)
+                nursery.start_soon(read_to_channel)
+                nursery.start_soon(read_from_channel)
+        except* trio.Cancelled:
+            msg = "Apex shutting down"
+            if msg not in error_messages:
+                error_messages.append(msg)
+            raise
+        except* EOFError:
+            error_messages.append("Connection closed")
+        except* ApexError as egroup:
+            for e in egroup.exceptions:
+                error_messages.append(str(e))
+        except* Exception as egroup:
+            for e in egroup.exceptions:
+                error_messages.append(f"{type(e).__name__}: {e}")
         finally:
             if read_buffer:
                 if len(read_buffer) > 40:
